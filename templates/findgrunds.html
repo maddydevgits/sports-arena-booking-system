@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Grounds - SportsPro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Russo+One&display=swap');
+
+        :root {
+            --primary: #FF4D4D;
+            --secondary: #1a1a1a;
+            --accent: #FFD700;
+            --text: #ffffff;
+            --background: #0A0A0A;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            width: 100%;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--secondary);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar-logo {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .search-bar {
+            width: 300px;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: none;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .grounds-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grounds-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grounds-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .ground-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ground-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .ground-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .ground-card-body {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .ground-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .ground-info {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .action-buttons {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="userDashboard" style="display: flex; width: 100%;">
+        <aside class="sidebar">
+            <div class="sidebar-logo">SportsPro</div>
+            <nav class="sidebar-nav">
+                <a href="/user/dashboard" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-search"></i>
+                    <span>Find Grounds</span>
+                </a>
+                <a href="./book.html" class="nav-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>My Bookings</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-heart"></i>
+                    <span>Favorites</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <!-- Search bar -->
+                <input type="search" id="searchBar" placeholder="Search grounds..." class="search-bar">
+
+                <div class="user-info">
+                    <div class="user-avatar">{{ username[0].upper() }}</div>
+                </div>
+            </div>
+
+            <div class="grounds-container" id="groundsContainer">
+                {% for ground in groundsdata %}
+                    <div class="ground-card" data-groundname="{{ ground.groundname }}" data-city="{{ ground.city }}" data-game="{{ground.groundtype}}">
+                        <img src="{{ ground.groundimg }}" alt="Ground Image">
+                        <div class="ground-card-body">
+                            <div class="ground-name">{{ ground.groundname }}</div>
+                            <div class="ground-info">City: {{ ground.city }} </div>
+                            <div class="ground-info">Uploaded by: {{ ground.uploadedowner }}</div>
+                            <div class="ground-info">Type: {{ ground.groundtype }}</div>
+                            <div class="ground-info">{{ ground.costperhour }} per hour</div>
+                            <div class="action-buttons">
+                                <a href="/grounddetails"><button class="btn btn-primary">Book Now</button></a>
+                                <form action="/ground/{{ground._id}}" method="get"><button type="submit" class="btn btn-secondary">View Details</button></form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById("searchBar").addEventListener("input", function() {
+            const query = this.value.toLowerCase();
+            const groundCards = document.querySelectorAll(".ground-card");
+
+            groundCards.forEach(function(card) {
+                const groundName = card.getAttribute("data-groundname").toLowerCase();
+                const city = card.getAttribute("data-city").toLowerCase();
+                const groundtype=card.getAttribute("data-game").toLowerCase();
+
+                if (groundName.includes(query) || city.includes(query) || groundtype.includes(query)){
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    </script>
+</body>
+</html>

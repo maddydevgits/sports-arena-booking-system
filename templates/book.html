@@ -1,0 +1,339 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SportsPro - Ground Booking</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <style>
+            /* Importing existing styles */
+            @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Russo+One&display=swap');
+
+            :root {
+                --primary: #FF4D4D;
+                --secondary: #1a1a1a;
+                --accent: #FFD700;
+                --text: #ffffff;
+                --background: #0A0A0A;
+                --card-bg: rgba(255, 255, 255, 0.05);
+                --success: #4CAF50;
+                --warning: #FFC107;
+                --danger: #f44336;
+            }
+
+            /* Base styles */
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Poppins', sans-serif;
+            }
+
+            body {
+                background-color: var(--background);
+                color: var(--text);
+                min-height: 100vh;
+                display: flex;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Sidebar Styles */
+            .sidebar {
+                width: 250px;
+                background: var(--secondary);
+                padding: 2rem 1rem;
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                height: 100vh;
+            }
+
+            .sidebar-logo {
+                font-family: 'Russo One', sans-serif;
+                font-size: 1.5rem;
+                color: var(--primary);
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .nav-item {
+                padding: 0.8rem 1rem;
+                border-radius: 10px;
+                color: var(--text);
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                transition: all 0.3s ease;
+            }
+
+            .nav-item:hover, .nav-item.active {
+                background: var(--primary);
+            }
+
+            .nav-item i {
+                width: 20px;
+            }
+
+            /* Main Content Styles */
+            .main-content {
+                flex: 1;
+                margin-left: 250px;
+                padding: 2rem;
+            }
+
+            .dashboard-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 2rem;
+            }
+
+            /* New Styles for Booking Page */
+            .booking-container {
+                background: var(--card-bg);
+                border-radius: 15px;
+                padding: 2rem;
+                margin-top: 2rem;
+            }
+
+            .date-picker {
+                margin-bottom: 2rem;
+            }
+
+            .date-picker input[type="date"] {
+                background: var(--secondary);
+                border: none;
+                padding: 0.8rem;
+                border-radius: 8px;
+                color: var(--text);
+                font-size: 1rem;
+            }
+
+            .time-slots-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 1rem;
+                margin-top: 1rem;
+            }
+
+            .time-slot {
+                padding: 1rem;
+                border-radius: 8px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .time-slot.available {
+                background: rgba(76, 175, 80, 0.2);
+                color: var(--success);
+            }
+
+            .time-slot.available:hover {
+                background: rgba(76, 175, 80, 0.3);
+                transform: translateY(-2px);
+            }
+
+            .time-slot.booked {
+                background: rgba(244, 67, 54, 0.2);
+                color: var(--danger);
+                cursor: not-allowed;
+                opacity: 0.7;
+            }
+
+            .ground-info {
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .ground-image {
+                width: 200px;
+                height: 150px;
+                background: var(--secondary);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .ground-details h2 {
+                margin-bottom: 0.5rem;
+            }
+
+            .legend {
+                display: flex;
+                gap: 2rem;
+                margin-top: 1rem;
+            }
+
+            .legend-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .legend-color {
+                width: 16px;
+                height: 16px;
+                border-radius: 4px;
+            }
+
+            .legend-color.available {
+                background: var(--success);
+            }
+
+            .legend-color.booked {
+                background: var(--danger);
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 70px;
+                    padding: 1rem 0.5rem;
+                }
+
+                .sidebar-logo, .nav-item span {
+                    display: none;
+                }
+
+                .main-content {
+                    margin-left: 70px;
+                }
+
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="bookingPage" style="display: flex; width: 100%;">
+            <!-- Sidebar (reused from dashboard) -->
+            <aside class="sidebar">
+                <div class="sidebar-logo">SportsPro</div>
+                <nav class="sidebar-nav">
+                    <a href="/user/dashboard" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item active">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Bookings</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-futbol"></i>
+                        <span>My Grounds</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="nav-item">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="main-content">
+                <div class="dashboard-header">
+                    <h1>Book Ground</h1>
+                </div>
+
+                <div class="booking-container">
+                    <div class="ground-info">
+                        <div class="ground-image">
+                            <i class="fas fa-futbol fa-3x" style="opacity: 0.5;"></i>
+                        </div>
+                        <div class="ground-details">
+                            <h2>{{ground.groundname}}</h2>
+                            <p>Location: {{ground.address}},{{ground.city}}  City </p>
+                            <p>Price: ₹{{ground.costperhour}} per hour</p>
+                        </div>
+                    </div>
+
+                    <div class="date-picker">
+                        <h3>Select Date</h3>
+                        <input type="date" id="booking-date" min="2024-11-15">
+                    </div>
+
+                    <div class="time-slots">
+                        <h3>Available Time Slots</h3>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color available"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color booked"></div>
+                                <span>Booked</span>
+                            </div>
+                        </div>
+                        <div class="time-slots-grid">
+                            <div class="time-slot available">10:00 AM</div>
+                            <div class="time-slot booked">11:00 AM</div>
+                            <div class="time-slot available">12:00 PM</div>
+                            <div class="time-slot booked">1:00 PM</div>
+                            <div class="time-slot available">2:00 PM</div>
+                            <div class="time-slot available">3:00 PM</div>
+                            <div class="time-slot booked">4:00 PM</div>
+                            <div class="time-slot available">5:00 PM</div>
+                            <div class="time-slot available">6:00 PM</div>
+                            <div class="time-slot booked">7:00 PM</div>
+                            <div class="time-slot available">8:00 PM</div>
+                            <div class="time-slot available">9:00 PM</div>
+                            <div class="time-slot available">10:00 PM</div>
+                        </div>
+                        <div style="text-align: center; margin-top: 2rem;">
+                            <button style="
+                                background: var(--primary);
+                                border: none;
+                                padding: 1rem 2rem;
+                                color: var(--text);
+                                font-size: 1rem;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;">
+                                Book Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script>
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('booking-date').min = today;
+            document.getElementById('booking-date').value = today;
+
+            // Add click handlers for available slots
+            document.querySelectorAll('.time-slot.available').forEach(slot => {
+                slot.addEventListener('click', () => {
+                    const time = slot.textContent;
+                    const date = document.getElementById('booking-date').value;
+                    alert(`Booking slot for ${time} on ${date}`);
+                    // Here you would typically open a booking confirmation modal
+                    // or redirect to a booking confirmation page
+                });
+            });
+        </script>
+    </body>
+    </html>

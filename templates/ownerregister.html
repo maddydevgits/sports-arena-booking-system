@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportsPro - Authentication</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Russo+One&display=swap');
+
+        :root {
+            --primary: #FF4D4D;
+            --secondary: #1a1a1a;
+            --accent: #FFD700;
+            --text: #ffffff;
+            --background: #0A0A0A;
+            --input-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .auth-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .auth-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .auth-type-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-type-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: var(--secondary);
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-type-btn.active {
+            background: var(--primary);
+        }
+
+        .auth-title {
+            font-family: 'Russo One', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: var(--input-bg);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-links {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .auth-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        .form-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-divider span {
+            padding: 0 1rem;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 10px;
+            background: var(--input-bg);
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+
+            .auth-box {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <body>
+        <nav class="navbar">
+            <a href="#" class="logo">SportsPro</a>
+        </nav>
+    
+        <!-- Ground Owner Registration -->
+        <div class="auth-container" id="ownerRegister" style="display: {{ 'flex' if show_register else 'none' }}">
+            <div class="auth-box">
+                <h2 class="auth-title">Ground Owner Registration</h2>
+                <form action="/owner/register" method="post">
+                    <div class="form-group">
+                        <label for="ownerName">Full Name</label>
+                        <input type="text" id="ownerName" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="businessName">Business Name</label>
+                        <input type="text" id="businessName" name="businessName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ownerEmail">Email Address</label>
+                        <input type="email" id="ownerEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ownerPhone">Phone Number</label>
+                        <input type="tel" id="ownerPhone" name="phno" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ownerPassword">Password</label>
+                        <input type="password" id="ownerPassword" name="password" required>
+                    </div>
+                    <button type="submit" class="btn">Register as Ground Owner</button>
+                    <div class="auth-links">
+                        <p>{{ status }}</p>
+                        <p>Already have an account? <a href="#ownerLogin">Login</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    
+        <!-- Ground Owner Login -->
+        <div class="auth-container" id="ownerLogin" style="display: {{ 'flex' if not show_register else 'none' }}">
+            <div class="auth-box">
+                <h2 class="auth-title">Ground Owner Login</h2>
+                <form action="/owner/login" method="post">
+                    <div class="form-group">
+                        <label for="ownerLoginEmail">Email Address</label>
+                        <input type="email" id="ownerLoginEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ownerLoginPassword">Password</label>
+                        <input type="password" id="ownerLoginPassword" name="password" required>
+                    </div>
+                    <button type="submit" class="btn">Login as Ground Owner</button>
+                    <div class="auth-links">
+                        <p>{{ status2 }}</p>
+                        <p>Don't have an account? <a href="#ownerRegister">Register</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    
+        <script>
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const formId = this.getAttribute('href').substring(1);
+                    document.querySelectorAll('.auth-container').forEach(container => {
+                        container.style.display = 'none';
+                    });
+                    document.getElementById(formId).style.display = 'flex';
+                });
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Grounds - Owner Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Russo+One&display=swap');
+
+        :root {
+            --primary: #FF4D4D;
+            --secondary: #1a1a1a;
+            --accent: #FFD700;
+            --text: #ffffff;
+            --background: #0A0A0A;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            width: 100%; 
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: var(--secondary);
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar-logo {
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Grounds Table Styles */
+        .grounds-table {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .grounds-table thead {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .grounds-table th, .grounds-table td {
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .grounds-table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        .grounds-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-manage {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-manage:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .add-ground-btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .add-ground-btn:hover {
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div id="ownerDashboard" style="display: flex; width: 100%;">
+        <aside class="sidebar">
+            <div class="sidebar-logo">SportsPro</div>
+            <nav class="sidebar-nav">
+                <a href="/owner/dashboard" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-futbol"></i>
+                    <span>My Grounds</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Bookings</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>{{ownername.upper()}}'s Grounds</h1>
+                <div class="user-info">
+                    <button class="add-ground-btn">Add New Ground</button>
+                    <div class="user-avatar">{{ownername[0].upper()}}</div>
+                </div>
+            </div>
+
+            <h2>My Grounds</h2>
+            <table class="grounds-table">
+                <thead>
+                    <tr>
+                        <th>Ground Name</th>
+                        <th>Ground Type</th>
+                        <th>Address</th>
+                        <th>City</th>
+                        <th>Cost Per Hour (₹)</th>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Example Grounds Data -->
+                     {% for ground in groundlist %}
+                        <tr>
+                            <td>{{ground.groundname}}</td>
+                            <td>{{ground.groundtype}}</td>
+                            <td>{{ground.address}}</td>
+                            <td>{{ ground.city }}</td>
+                            <td> {{ ground.costperhour }} </td>
+                            <td><img src="{{ ground.groundimg}}" alt="Cricket" width="50"></td>
+                            <td>
+                                <button class="btn-manage">Manage</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </main>
+    </div>
+</body>
+</html>
