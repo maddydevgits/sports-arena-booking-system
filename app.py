@@ -152,8 +152,6 @@ def view_ground_details(ground_id):
         return "Ground not found!", 404
     return redirect(url_for("user_login"))
 
-
-
 @app.route("/ground/<ground_id>/available-slots/<booking_date>")
 def available_slots(ground_id, booking_date):
     ground = grounds.find_one({"_id": ObjectId(ground_id)})
@@ -226,11 +224,6 @@ def ground_booking_page(ground_id):
     # Get available time slots for today (or a given date)
     today = datetime.today().strftime('%Y-%m-%d')
     return render_template("book.html", ground=ground, username=session['username'], booking_date=today)
-
-
-
-
-
 
 # Logout Route
 @app.route("/logout")
