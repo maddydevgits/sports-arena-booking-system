@@ -145,9 +145,40 @@ def grounddetails():
 def view_ground_details(ground_id):
     if 'username' in session:
         ground = grounds.find_one({"_id": ObjectId(ground_id)})
-        if ground:
-            return render_template("book.html", ground=ground, username=session['username'])
-        return "Ground not found!", 404
+
+        if not ground:
+            return "Ground not found!", 404
+
+        # Example: Fetch bookings for today's date
+        from datetime import datetime
+        today = datetime.now().strftime("%Y-%m-%d")
+        
+        # Get all bookings for this ground and today
+        booked_slots = bookings.find({
+            "ground_id": ObjectId(ground_id),
+            "booking_date": today,
+            "status": "booked"
+        })
+
+        # Create a dictionary of booked time slots
+        booked_time_slots = {booking["time_slot"]: True for booking in booked_slots}
+
+        # Define all available time slots
+        all_time_slots = [
+            "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM",
+            "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM",
+            "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM",
+            "10:00 PM"
+        ]
+
+        # Prepare slot data with statuses
+        time_slots = [
+            {"time": slot, "status": "booked" if slot in booked_time_slots else "available"}
+            for slot in all_time_slots
+        ]
+
+        return render_template("book.html", ground=ground, time_slots=time_slots, username=session['username'])
+
     return redirect(url_for("user_login"))
 
 @app.route("/ground/<ground_id>/available-slots/<booking_date>")
@@ -176,15 +207,24 @@ def available_slots(ground_id, booking_date):
     return jsonify(available_slots)
 
 # Route to book a slot for a ground
+from flask import jsonify
+
 @app.route("/book-slot", methods=['POST'])
 def book_slot():
     if 'username' not in session:
-        return redirect(url_for("user_register"))
+        return jsonify({"message": "User not logged in. Please log in first."}), 401
 
     user = users.find_one({"username": session['username']})
-    ground_id = request.form.get("ground_id")
-    time_slot = request.form.get("time_slot")
-    booking_date = request.form.get("booking_date")
+    ground_id = request.json.get("ground_id")  # Updated to get JSON input
+    time_slot = request.json.get("time_slot")
+    booking_date = request.json.get("booking_date")
+
+    print(ground_id, time_slot, booking_date, user)
+
+    ground = grounds.find_one({"_id": ObjectId(ground_id)})
+
+    if not ground:
+        return jsonify({"message": "Ground not found."}), 404
 
     # Check if the slot is already booked
     existing_booking = bookings.find_one({
@@ -195,7 +235,7 @@ def book_slot():
     })
     
     if existing_booking:
-        return render_template("book.html", status="Slot is already booked!", ground_id=ground_id)
+        return jsonify({"message": "Slot is already booked!"}), 409
 
     # If the slot is available, create a new booking
     booking = {
@@ -207,7 +247,7 @@ def book_slot():
     }
     bookings.insert_one(booking)
 
-    return render_template("book.html", status="Booking successful!", ground_id=ground_id)
+    return jsonify({"message": "Booking successful!"}), 200
 
 # Route to show ground details and available time slots
 @app.route("/ground/<ground_id>/book", methods=["GET"])
