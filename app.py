@@ -3,8 +3,6 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId  
 from datetime import datetime
 
-
-
 # MongoDB Setup
 cluster = MongoClient("127.0.0.1:27017")
 db = cluster['sports-Arena']
