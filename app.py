@@ -105,10 +105,10 @@ def owner_dashboard():
         count=len(ownerbookings)
         ownergrounds=list(grounds.find({"uploadedowner":session['ownerusername']}))
         totalgrounds=len(ownergrounds)
+        print()
         cost=0
-        for i in  ownergrounds:
-            cost += int(i['cost'])
-            print(cost)
+        for i in ownerbookings:
+            cost+=int(i['cost'])
 
         return render_template("ownerDashboard.html", ownername=session['ownerusername'],ownerbookings=ownerbookings,count=count,totalgrounds=totalgrounds,cost=cost)
     return redirect(url_for("register_owner"))
