@@ -257,10 +257,7 @@
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Bookings</span>
-                </a>
+                
                 <a href="/mygrounds" class="nav-item">
                     <i class="fas fa-futbol"></i>
                     <span>My Grounds</span>
@@ -292,7 +289,7 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <i class="fas fa-calendar-check"></i>
-                    <div class="stat-value">45</div>
+                    <div class="stat-value">{{count}}</div>
                     <div class="stat-label">Total Bookings</div>
                 </div>
                 <div class="stat-card">
@@ -302,7 +299,7 @@
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-futbol"></i>
-                    <div class="stat-value">3</div>
+                    <div class="stat-value">{{totalgrounds}}</div>
                     <div class="stat-label">Active Grounds</div>
                 </div>
                 <div class="stat-card">
@@ -325,26 +322,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>John Doe</td>
-                        <td>Victory Arena</td>
-                        <td>15 Nov 2024, 6:00 PM</td>
-                        <td>₹1,200</td>
-                        <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                        <td>
-                            <button class="btn btn-primary">Manage</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Jane Smith</td>
-                        <td>Victory Arena</td>
-                        <td>18 Nov 2024, 7:00 PM</td>
-                        <td>₹1,500</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
-                        <td>
-                            <button class="btn btn-primary">Manage</button>
-                        </td>
-                    </tr>
+                    {% for ownerbooking in ownerbookings %}
+                        <tr>
+                            <td>{{ ownerbooking.bookedBy}}</td>
+                            <td>{{ ownerbooking.groundname}},{{ownerbooking.sportname}}</td>
+                            <td>{{ ownerbooking.booking_date }}, {{ ownerbooking.time_slot}}</td>
+                            <td>₹ {{ ownerbooking.cost }}</td>
+                            <td><span class="status-badge status-confirmed">{{ ownerbooking.status }}</span></td>
+                            <td>
+                                <button class="btn btn-primary">Manage</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </main>

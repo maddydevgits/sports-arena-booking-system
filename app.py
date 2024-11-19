@@ -101,7 +101,11 @@ def owner_login():
 @app.route("/owner/dashboard")
 def owner_dashboard():
     if 'ownerusername' in session:
-        return render_template("ownerDashboard.html", ownername=session['ownerusername'])
+        ownerbookings=list(bookings.find({"uploadedBy":session['ownerusername']}))
+        count=len(ownerbookings)
+        ownergrounds=list(grounds.find({"uploadedowner":session['ownerusername']}))
+        totalgrounds=len(ownergrounds)
+        return render_template("ownerDashboard.html", ownername=session['ownerusername'],ownerbookings=ownerbookings,count=count,totalgrounds=totalgrounds)
     return redirect(url_for("register_owner"))
 
 @app.route("/addground")
@@ -262,6 +266,7 @@ def book_slot():
     groundname=ground['groundname']
     sportname=ground['groundtype']
     ownername=ground['uploadedowner']
+    groundcost=ground['costperhour']
     if not ground:
         return jsonify({"message": "Ground not found."}), 404
 
@@ -288,6 +293,7 @@ def book_slot():
         "uploadedBy":ownername,
         "bookedBy":session['username'],
         "time_slot": time_slot,
+        "cost":groundcost,
         "booking_date": booking_date,
         "status": "booked"
     }
