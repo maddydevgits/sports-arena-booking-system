@@ -141,6 +141,41 @@ def grounddetails():
         return render_template("book.html")
     return redirect(url_for("user_register"))
 
+@app.route("/ground/<ground_id>/slots", methods=['GET'])
+def get_slots(ground_id):
+    date = request.args.get('date')
+    if not date:
+        return jsonify({"message": "Date parameter is required"}), 400
+
+    ground = grounds.find_one({"_id": ObjectId(ground_id)})
+    if not ground:
+        return jsonify({"message": "Ground not found"}), 404
+
+    # Fetch booked slots for the selected date
+    booked_slots = bookings.find({
+        "ground_id": ObjectId(ground_id),
+        "booking_date": date,
+        "status": "booked"
+    })
+
+    booked_time_slots = {booking["time_slot"]: True for booking in booked_slots}
+
+    # Define all available time slots
+    all_time_slots = [
+        "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM",
+        "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM",
+        "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM",
+        "10:00 PM"
+    ]
+
+    # Prepare slot data with statuses
+    time_slots = [
+        {"time": slot, "status": "booked" if slot in booked_time_slots else "available"}
+        for slot in all_time_slots
+    ]
+
+    return jsonify(time_slots), 200
+
 @app.route("/ground/<ground_id>")
 def view_ground_details(ground_id):
     if 'username' in session:

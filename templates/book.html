@@ -329,8 +329,73 @@
             const bookingDateElement = document.getElementById('booking-date');
             bookingDateElement.min = today;
             bookingDateElement.value = today;
-        
-            // Add click handlers for available slots
+
+            async function fetchAndUpdateSlots(date) {
+                const groundId = document.getElementById('ground-id').value;
+
+                try {
+                    const response = await fetch(`/ground/${groundId}/slots?date=${date}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch slots');
+                    }
+
+                    const slots = await response.json();
+
+                    const slotsGrid = document.querySelector('.time-slots-grid');
+                    slotsGrid.innerHTML = ''; 
+
+                    slots.forEach(slot => {
+                        
+                        const slotElement = document.createElement('div');
+                        slotElement.classList.add('time-slot', slot.status); 
+                        slotElement.textContent = slot.time;
+
+                        if (slot.status === 'available') {
+                            slotElement.addEventListener('click', async () => {
+                                if (confirm(`Do you want to book the slot for ${slot.time} on ${date}?`)) {
+                                    try {
+                                        const response = await fetch('/book-slot', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                ground_id: groundId,
+                                                time_slot: slot.time,
+                                                booking_date: date
+                                            })
+                                        });
+
+                                        const result = await response.json();
+                                        if (response.ok) {
+                                            alert(result.message);
+                                            slotElement.classList.remove('available');
+                                            slotElement.classList.add('booked');
+                                        } else {
+                                            alert(result.message);
+                                        }
+                                    } catch (error) {
+                                        console.error('Error:', error);
+                                        alert('Something went wrong! Please try again.');
+                                    }
+                                }
+                            });
+                        }
+
+                        slotsGrid.appendChild(slotElement); 
+                    });
+                } catch (error) {
+                    console.error('Error fetching slots:', error);
+                    alert('Failed to fetch available slots. Please try again later.');
+                }
+            }
+
+            bookingDateElement.addEventListener('change', (event) => {
+                const selectedDate = event.target.value;
+                if (selectedDate) {
+                    fetchAndUpdateSlots(selectedDate);
+                }
+            });        
             document.querySelectorAll('.time-slot.available').forEach(slot => {
                 slot.addEventListener('click', async () => {
                     const time = slot.textContent.trim();
@@ -339,16 +404,13 @@
         
                     console.log('Selected Time:', time, 'Date:', date, 'Ground ID:', groundId);
         
-                    // Validate inputs
                     if (!time || !date || !groundId) {
                         alert('Invalid booking details. Please try again.');
                         return;
                     }
         
-                    // Confirm the booking
                     if (confirm(`Do you want to book the slot for ${time} on ${date}?`)) {
                         try {
-                            // Make API call
                             const response = await fetch('/book-slot', {
                                 method: 'POST',
                                 headers: {
@@ -363,7 +425,7 @@
         
                             const result = await response.json();
                             if (response.ok) {
-                                alert(result.message); // e.g., "Booking successful!"
+                                alert(result.message); 
                                 slot.classList.remove('available');
                                 slot.classList.add('booked');
                             } else {
