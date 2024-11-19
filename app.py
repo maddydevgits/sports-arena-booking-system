@@ -105,7 +105,12 @@ def owner_dashboard():
         count=len(ownerbookings)
         ownergrounds=list(grounds.find({"uploadedowner":session['ownerusername']}))
         totalgrounds=len(ownergrounds)
-        return render_template("ownerDashboard.html", ownername=session['ownerusername'],ownerbookings=ownerbookings,count=count,totalgrounds=totalgrounds)
+        cost=0
+        for i in  ownergrounds:
+            cost += int(i['cost'])
+            print(cost)
+
+        return render_template("ownerDashboard.html", ownername=session['ownerusername'],ownerbookings=ownerbookings,count=count,totalgrounds=totalgrounds,cost=cost)
     return redirect(url_for("register_owner"))
 
 @app.route("/addground")
@@ -315,11 +320,23 @@ def ground_booking_page(ground_id):
     today = datetime.today().strftime('%Y-%m-%d')
     return render_template("book.html", ground=ground, username=session['username'], booking_date=today)
 
+
+@app.route("/deletebooking/<ownerbooking_id>", methods=['post'])
+def delete_booking(ownerbooking_id):
+    bookings.delete_one({"_id":ObjectId(ownerbooking_id)})
+    return redirect(url_for("owner_dashboard"))
+
+@app.route("/deletesbooking/<booking_id>", methods=['post'])
+def delete_bookings(booking_id):
+    bookings.delete_one({"_id":ObjectId(booking_id)})
+    return redirect(url_for("user_dashboard"))
+
 # Logout Route
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("home"))
+
 
 if __name__ == '__main__':
     app.run(port=6020, debug=True)

@@ -217,19 +217,13 @@
                     <i class="fas fa-search"></i>
                     <span>Find Grounds</span>
                 </a>
-                <a href="./book.html" class="nav-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>My Bookings</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-heart"></i>
-                    <span>Favorites</span>
-                </a>
+                
+
                 <a href="#" class="nav-item">
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="/logout" class="nav-item">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -257,7 +251,6 @@
                             <div class="ground-info">Type: {{ ground.groundtype }}</div>
                             <div class="ground-info">₹ {{ ground.costperhour }} per hour</div>
                             <div class="action-buttons">
-                                <a href="/grounddetails"><button class="btn btn-primary">Book Now</button></a>
                                 <form action="/ground/{{ground._id}}" method="get"><button type="submit" class="btn btn-secondary">View Details</button></form>
                             </div>
                         </div>

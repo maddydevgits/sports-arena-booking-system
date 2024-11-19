@@ -270,7 +270,7 @@
                     <i class="fas fa-cog"></i>
                     <span>Settings</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="/logout" class="nav-item">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -294,7 +294,7 @@
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-money-bill-wave"></i>
-                    <div class="stat-value">₹15,000</div>
+                    <div class="stat-value">₹{{cost}}</div>
                     <div class="stat-label">Revenue This Month</div>
                 </div>
                 <div class="stat-card">
@@ -330,7 +330,7 @@
                             <td>₹ {{ ownerbooking.cost }}</td>
                             <td><span class="status-badge status-confirmed">{{ ownerbooking.status }}</span></td>
                             <td>
-                                <button class="btn btn-primary">Manage</button>
+                                <form action="/deletebooking/{{ownerbooking._id}}" method="post"><button type="submit" class="btn btn-primary">Reject</button></form>
                             </td>
                         </tr>
                     {% endfor %}
