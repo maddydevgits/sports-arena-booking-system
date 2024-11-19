@@ -52,7 +52,9 @@ def user_login():
 @app.route("/user/dashboard")
 def user_dashboard():
     if 'username' in session:
-        return render_template("Dashboard.html", username=session['username'])
+        userbookings=list(bookings.find({"bookedBy":session['username']}))
+        count=len(userbookings)
+        return render_template("Dashboard.html", username=session['username'],userbookings=userbookings,count=count)
     return redirect(url_for("user_register"))
 
 
@@ -257,13 +259,16 @@ def book_slot():
     print(ground_id, time_slot, booking_date, user)
 
     ground = grounds.find_one({"_id": ObjectId(ground_id)})
-
+    groundname=ground['groundname']
+    sportname=ground['groundtype']
+    ownername=ground['uploadedowner']
     if not ground:
         return jsonify({"message": "Ground not found."}), 404
 
     # Check if the slot is already booked
     existing_booking = bookings.find_one({
         "ground_id": ObjectId(ground_id),
+        
         "time_slot": time_slot,
         "booking_date": booking_date,
         "status": "booked"
@@ -273,9 +278,15 @@ def book_slot():
         return jsonify({"message": "Slot is already booked!"}), 409
 
     # If the slot is available, create a new booking
+
+
     booking = {
         "ground_id": ObjectId(ground_id),
         "user_id": user["_id"],
+        "groundname":groundname,
+        "sportname":sportname,
+        "uploadedBy":ownername,
+        "bookedBy":session['username'],
         "time_slot": time_slot,
         "booking_date": booking_date,
         "status": "booked"

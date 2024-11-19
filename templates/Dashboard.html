@@ -292,12 +292,12 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <i class="fas fa-calendar-check"></i>
-                    <div class="stat-value">12</div>
+                    <div class="stat-value">{{count}}</div>
                     <div class="stat-label">Total Bookings</div>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-clock"></i>
-                    <div class="stat-value">36h</div>
+                    <div class="stat-value">{{count}}h</div>
                     <div class="stat-label">Hours Played</div>
                 </div>
                 <div class="stat-card">
@@ -319,24 +319,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Victory Arena</td>
-                        <td>15 Nov 2024, 6:00 PM</td>
-                        <td>Football</td>
-                        <td><span class="status-badge status-confirmed">Confirmed</span></td>
-                        <td>
-                            <button class="btn btn-secondary">View Details</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Sports Hub</td>
-                        <td>18 Nov 2024, 7:00 PM</td>
-                        <td>Cricket</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
-                        <td>
-                            <button class="btn btn-secondary">View Details</button>
-                        </td>
-                    </tr>
+                    {% for booking in userbookings %}
+                        <tr>
+                            <td>{{ booking.groundname}}</td>
+                            <td>{{ booking.booking_date }}, {{ booking.time_slot}}</td>
+                            <td>{{ booking.sportname}}</td>
+                            <td><span class="status-badge status-confirmed">{{ booking.status }}</span></td>
+                            <td>
+                                <button class="btn btn-secondary">View Details</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </main>

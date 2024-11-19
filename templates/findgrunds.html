@@ -255,7 +255,7 @@
                             <div class="ground-info">City: {{ ground.city }} </div>
                             <div class="ground-info">Uploaded by: {{ ground.uploadedowner }}</div>
                             <div class="ground-info">Type: {{ ground.groundtype }}</div>
-                            <div class="ground-info">{{ ground.costperhour }} per hour</div>
+                            <div class="ground-info">₹ {{ ground.costperhour }} per hour</div>
                             <div class="action-buttons">
                                 <a href="/grounddetails"><button class="btn btn-primary">Book Now</button></a>
                                 <form action="/ground/{{ground._id}}" method="get"><button type="submit" class="btn btn-secondary">View Details</button></form>
