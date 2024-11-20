@@ -230,7 +230,7 @@
                             <td> {{ ground.costperhour }} </td>
                             <td><img src="{{ ground.groundimg}}" alt="Cricket" width="50"></td>
                             <td>
-                                <button class="btn-manage">Manage</button>
+                                <form action="/updateground/{{ground._id}}" method="post"><button type="submit" class="add-ground-btn">Update</button></form>
                             </td>
                         </tr>
                     {% endfor %}

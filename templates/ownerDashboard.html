@@ -325,10 +325,28 @@
                             <td>{{ ownerbooking.groundname}},{{ownerbooking.sportname}}</td>
                             <td>{{ ownerbooking.booking_date }}, {{ ownerbooking.time_slot}}</td>
                             <td>₹ {{ ownerbooking.cost }}</td>
-                            <td><span class="status-badge status-confirmed">{{ ownerbooking.status }}</span></td>
+                            <td><span class="status-badge 
+                                {% if ownerbooking.status == 'booked' %}
+                                    status-confirmed
+                                {% elif ownerbooking.status == 'pending' %}
+                                    status-pending
+                                {% elif ownerbooking.status == 'rejected' %}
+                                    status-cancelled
+                                {% else %}
+                                    status-unknown
+                                {% endif %}
+                            ">{{ ownerbooking.status }}</span></td>
                             <td>
-                                <form action="/deletebooking/{{ownerbooking._id}}" method="post"><button type="submit" class="btn btn-primary">Reject</button></form>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <form action="/rejectbooking/{{ownerbooking._id}}" method="post">
+                                        <button type="submit" class="btn btn-secondary">Reject</button>
+                                    </form>
+                                    <form action="/updatebooking/{{ownerbooking._id}}" method="post">
+                                        <button type="submit" class="btn btn-primary">Accept</button>
+                                    </form>
+                                </div>
                             </td>
+                            
                         </tr>
                     {% endfor %}
                 </tbody>

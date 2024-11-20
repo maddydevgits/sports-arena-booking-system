@@ -318,7 +318,22 @@
                             <td>{{ booking.groundname}}</td>
                             <td>{{ booking.booking_date }}, {{ booking.time_slot}}</td>
                             <td>{{ booking.sportname}}</td>
-                            <td><span class="status-badge status-confirmed">{{ booking.status }}</span></td>
+                            <td>
+                                <span class="status-badge 
+                                    {% if booking.status == 'booked' %}
+                                        status-confirmed
+                                    {% elif booking.status == 'pending' %}
+                                        status-pending
+                                    {% elif booking.status == 'rejected' %}
+                                        status-cancelled
+                                    {% else %}
+                                        status-unknown
+                                    {% endif %}
+                                ">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                            
                             <td>
                                 <form action="/deletesbooking/{{booking._id}}" method="post"><button type="submit" class="btn btn-secondary">Cancel</button></form>
                             </td>

@@ -300,11 +300,20 @@ def book_slot():
         "time_slot": time_slot,
         "cost":groundcost,
         "booking_date": booking_date,
-        "status": "booked"
+        "status": "pending"
     }
     bookings.insert_one(booking)
 
     return jsonify({"message": "Booking successful!"}), 200
+
+
+
+
+
+
+
+
+
 
 # Route to show ground details and available time slots
 @app.route("/ground/<ground_id>/book", methods=["GET"])
@@ -330,6 +339,63 @@ def delete_booking(ownerbooking_id):
 def delete_bookings(booking_id):
     bookings.delete_one({"_id":ObjectId(booking_id)})
     return redirect(url_for("user_dashboard"))
+
+@app.route("/updatebooking/<ownerupdatebooking_id>" ,methods=['post'])
+def ownerupdatebooking(ownerupdatebooking_id):
+    bookings.update_one(
+        {"_id": ObjectId(ownerupdatebooking_id)},  # Filter
+        {"$set": {"status": "booked"}}             # Update
+    )
+    return redirect(url_for("owner_dashboard"))
+
+@app.route("/rejectbooking/<ownerupdatebooking_id>" , methods=['post'])
+def rejectbooking(ownerupdatebooking_id):
+    bookings.update_one(
+        {"_id": ObjectId(ownerupdatebooking_id)},  # Filter
+        {"$set": {"status": "rejected"}}             # Update
+    )
+    return redirect(url_for("owner_dashboard"))
+
+
+@app.route("/updateground/<ground_id>" ,methods=['post'])
+def updateground(ground_id):
+    ground = grounds.find_one({"_id": ObjectId(ground_id)})
+    return render_template("updateground.html",ground=ground)
+
+
+from flask import Flask, request, redirect, url_for
+from bson import ObjectId
+
+@app.route("/updatingground/<ground_id>", methods=['POST'])
+def updatingground(ground_id):
+    # Retrieve form data
+    a = request.form.get("groundName")
+    b = request.form.get("groundType")
+    c = request.form.get("address")
+    d = request.form.get("city")
+    e = request.form.get("costPerHour")
+    f = request.form.get("groundImage")
+
+    # Prepare update data
+    updatedata = {
+        "groundname": a,
+        "groundtype": b,
+        "address": c,
+        "city": d,
+        "costperhour": e,  # Ensure numeric data for cost
+        "groundimg": f
+    }
+
+    # Correct syntax for `update_one`
+    grounds.update_one(
+        {"_id": ObjectId(ground_id)},  # Filter
+        {"$set": updatedata}           # Update
+    )
+
+    # Redirect to dashboard
+    return redirect(url_for("mygrounds"))
+
+
 
 # Logout Route
 @app.route("/logout")
