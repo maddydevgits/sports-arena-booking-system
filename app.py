@@ -102,12 +102,14 @@ def owner_login():
 def owner_dashboard():
     if 'ownerusername' in session:
         ownerbookings=list(bookings.find({"uploadedBy":session['ownerusername']}))
-        count=len(ownerbookings)
+        bookedbookings=list(bookings.find({"status":"booked"}))
+        count=len(bookedbookings)
         ownergrounds=list(grounds.find({"uploadedowner":session['ownerusername']}))
         totalgrounds=len(ownergrounds)
         print()
         cost=0
-        for i in ownerbookings:
+
+        for i in bookedbookings:
             cost+=int(i['cost'])
 
         return render_template("ownerDashboard.html", ownername=session['ownerusername'],ownerbookings=ownerbookings,count=count,totalgrounds=totalgrounds,cost=cost)
@@ -162,14 +164,23 @@ def get_slots(ground_id):
     if not ground:
         return jsonify({"message": "Ground not found"}), 404
 
-    # Fetch booked slots for the selected date
+    # Fetch booked and pending slots for the selected date
     booked_slots = bookings.find({
         "ground_id": ObjectId(ground_id),
         "booking_date": date,
-        "status": "booked"
+        "$or": [
+            {"status": "booked"},
+            {"status": "pending"}
+        ]
     })
 
-    booked_time_slots = {booking["time_slot"]: True for booking in booked_slots}
+    # Create a dictionary to track slot statuses
+    slot_statuses = {}
+    for booking in booked_slots:
+        if booking['status'] == 'booked':
+            slot_statuses[booking["time_slot"]] = "booked"
+        elif booking['status'] == 'pending':
+            slot_statuses[booking["time_slot"]] = "pending"
 
     # Define all available time slots
     all_time_slots = [
@@ -181,7 +192,7 @@ def get_slots(ground_id):
 
     # Prepare slot data with statuses
     time_slots = [
-        {"time": slot, "status": "booked" if slot in booked_time_slots else "available"}
+        {"time": slot, "status": slot_statuses.get(slot, "available")}
         for slot in all_time_slots
     ]
 
@@ -253,7 +264,7 @@ def available_slots(ground_id, booking_date):
     return jsonify(available_slots)
 
 # Route to book a slot for a ground
-from flask import jsonify
+
 
 @app.route("/book-slot", methods=['POST'])
 def book_slot():
@@ -283,8 +294,16 @@ def book_slot():
         "booking_date": booking_date,
         "status": "booked"
     })
+    existing_pending=bookings.find_one({
+        "ground_id": ObjectId(ground_id),
+        
+        "time_slot": time_slot,
+        "booking_date": booking_date,
+        "status": "pending"
+    })
     
-    if existing_booking:
+    if existing_booking or existing_pending:
+        print("slot already booked")
         return jsonify({"message": "Slot is already booked!"}), 409
 
     # If the slot is available, create a new booking
