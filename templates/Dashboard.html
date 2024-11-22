@@ -316,7 +316,7 @@
                     {% for booking in userbookings %}
                         <tr>
                             <td>{{ booking.groundname}}</td>
-                            <td>{{ booking.booking_date }}, {{ booking.time_slot}}</td>
+                            <td>{{ booking.booking_date }}, {{ booking.time_slot}}{{booking.booking_type}}</td>
                             <td>{{ booking.sportname}}</td>
                             <td>
                                 <span class="status-badge 

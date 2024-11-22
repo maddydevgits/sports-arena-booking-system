@@ -326,11 +326,14 @@
               <!-- Slots will be dynamically loaded here -->
               
             </div>
-            <div style="text-align: center; margin-top: 2rem">
+            <div style="text-align: center; margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
               <button id="book-now-btn" style="background: var(--primary); border: none; padding: 1rem 2rem; color: var(--text); font-size: 1rem; border-radius: 8px; cursor: pointer;">
-                Book Selected Slots
+                  Book Selected Slots
               </button>
-            </div>
+              <button id="book-full-day-btn" style="background: var(--accent); border: none; padding: 1rem 2rem; color: var(--secondary); font-size: 1rem; border-radius: 8px; cursor: pointer;">
+                  Book Full Day
+              </button>
+          </div>
           </div>
         </div>
       </main>
@@ -463,10 +466,50 @@
         bookingDateElement.addEventListener("change", (event) => {
             const selectedDate = event.target.value;
             if (selectedDate) fetchAndUpdateSlots(selectedDate);
-        });
+      });
+        // Add this to your existing JavaScript
+      document.getElementById("book-full-day-btn").addEventListener("click", async () => {
+            const date = document.getElementById("booking-date").value;
+            const groundId = document.getElementById("ground-id").value;
+            console.log(date)
+            console.log(groundId)
+            try {
+                // First, check the availability of all slots for the day
+                const availabilityResponse = await fetch(`/ground/${groundId}/check-full-day-availability?date=${date}` , { method: 'GET' });
+                const availabilityData = await availabilityResponse.json();
 
+                if (!availabilityData.is_available) {
+                    alert("Cannot book full day. Some slots are already booked or pending.");
+                    return;
+                }
+
+                // If all slots are available, proceed with full-day booking
+                const bookFullDayResponse = await fetch("/book-full-day", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        ground_id: groundId,
+                        booking_date: date
+                    })
+                });
+
+                const result = await bookFullDayResponse.json();
+
+                if (result.success) {
+                    alert("Full day booking successful!");
+                    // Refresh slots to reflect new status
+                    fetchAndUpdateSlots(date);
+                } else {
+                    alert(result.message || "Failed to book full day.");
+                }
+
+            } catch (error) {
+                console.error("Error booking full day:", error);
+                alert("An error occurred while booking the full day.");
+            }
+      });
         // Initial fetch of slots for today
-        fetchAndUpdateSlots(today);
+      fetchAndUpdateSlots(today);
     </script>
   </body>
 </html>

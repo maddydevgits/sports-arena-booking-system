@@ -323,7 +323,7 @@
                         <tr>
                             <td>{{ ownerbooking.bookedBy}}</td>
                             <td>{{ ownerbooking.groundname}},{{ownerbooking.sportname}}</td>
-                            <td>{{ ownerbooking.booking_date }}, {{ ownerbooking.time_slot}}</td>
+                            <td>{{ ownerbooking.booking_date }}, {{ ownerbooking.time_slot}}{{ownerbooking.booking_type}}</td>
                             <td>₹ {{ ownerbooking.cost }}</td>
                             <td><span class="status-badge 
                                 {% if ownerbooking.status == 'booked' %}
