@@ -172,21 +172,38 @@ def get_slots(ground_id):
         "10:00 PM"
     ]
 
-    # Fetch booked and pending slots for the selected date
+    # Fetch all types of bookings for the selected date
     booked_slots = bookings.find({
         "ground_id": ObjectId(ground_id),
-        "booking_date": date,
         "$or": [
-            {"status": "booked"},
-            {"status": "pending"}
+            # Regular single-slot bookings
+            {
+                "booking_date": date,
+                "status": {"$in": ["booked", "pending"]}
+            },
+            # Full-day bookings
+            {
+                "booking_date": date,
+                "booking_type": "full_day",
+                "status": {"$in": ["booked", "pending"]}
+            },
+            # Date range bookings
+            {
+                "booking_type": "date_range",
+                "booking_dates": date,  # Check if date is in the booking_dates array
+                "status": {"$in": ["booked", "pending"]}
+            }
         ]
     })
 
     # Create a dictionary to track slot statuses
     slot_statuses = {}
+    
     for booking in booked_slots:
-        # Handle full-day booking
-        if booking.get("booking_type") == "full_day":
+        booking_type = booking.get("booking_type")
+        
+        if booking_type == "full_day" or booking_type == "date_range":
+            # For full-day and date range bookings, mark all slots
             for slot in all_time_slots:
                 slot_statuses[slot] = "booked" if booking["status"] == "booked" else "pending"
         else:
@@ -195,7 +212,7 @@ def get_slots(ground_id):
                 for slot in booking["time_slots"]:
                     slot_statuses[slot] = "booked" if booking["status"] == "booked" else "pending"
             else:
-                slot_statuses[booking["time_slot"]] = "booked" if booking["status"] == "booked" else "pending"
+                slot_statuses[booking.get("time_slot")] = "booked" if booking["status"] == "booked" else "pending"
 
     # Prepare slot data with statuses
     time_slots = [
@@ -443,6 +460,148 @@ def book_full_day():
 
 
 
+
+
+
+# Add these new routes to your Flask application
+
+from datetime import datetime, timedelta
+
+# Assume `users`, `grounds`, and `bookings` are MongoDB collections initialized elsewhere.
+
+@app.route("/ground/<ground_id>/check-date-range-availability", methods=['GET'])
+def check_date_range_availability(ground_id):
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    # Validate date inputs
+    if not start_date or not end_date:
+        return jsonify({"success": False, "message": "Start and end dates are required."}), 400
+    try:
+        start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+        end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+    except ValueError:
+        return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DD."}), 400
+
+    if end_dt < start_dt:
+        return jsonify({"success": False, "message": "End date cannot be earlier than start date."}), 400
+
+    # Generate the date range
+    date_range = [
+        (start_dt + timedelta(days=i)).strftime('%Y-%m-%d')
+        for i in range((end_dt - start_dt).days + 1)
+    ]
+
+    # Query bookings for the ground in the specified date range
+    unavailable_dates = []
+    for date in date_range:
+        count = bookings.count_documents({
+            "ground_id": ObjectId(ground_id),
+            "booking_date": date,
+            "status": {"$in": ["booked", "pending"]}
+        })
+        if count > 0:
+            unavailable_dates.append(date)
+
+    if unavailable_dates:
+        return jsonify({
+            "success": False,
+            "message": "Some dates are not available.",
+            "unavailable_dates": unavailable_dates
+        })
+
+    return jsonify({
+        "success": True,
+        "message": "All dates are available.",
+        "date_range": date_range
+    })
+
+@app.route("/book-date-range", methods=['POST'])
+def book_date_range():
+    if 'username' not in session:
+        return jsonify({"success": False, "message": "User not logged in."}), 401
+
+    data = request.json
+    ground_id = data.get("ground_id")
+    start_date = data.get("start_date")
+    end_date = data.get("end_date")
+
+    if not ground_id or not start_date or not end_date:
+        return jsonify({"success": False, "message": "ground_id, start_date, and end_date are required."}), 400
+
+    try:
+        start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+        end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+    except ValueError:
+        return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DD."}), 400
+
+    if end_dt < start_dt:
+        return jsonify({"success": False, "message": "End date cannot be earlier than start date."}), 400
+
+    # Fetch user and ground details
+    user = users.find_one({"username": session['username']})
+    ground = grounds.find_one({"_id": ObjectId(ground_id)})
+
+    if not ground:
+        return jsonify({"success": False, "message": "Ground not found."}), 404
+
+    # Generate the date range
+    date_range = [
+        (start_dt + timedelta(days=i)).strftime('%Y-%m-%d')
+        for i in range((end_dt - start_dt).days + 1)
+    ]
+
+    # Check if any date is unavailable
+    unavailable_dates = []
+    for date in date_range:
+        count = bookings.count_documents({
+            "ground_id": ObjectId(ground_id),
+            "booking_date": date,
+            "status": {"$in": ["booked", "pending"]}
+        })
+        if count > 0:
+            unavailable_dates.append(date)
+
+    if unavailable_dates:
+        return jsonify({
+            "success": False,
+            "message": "Some dates are not available for booking.",
+            "unavailable_dates": unavailable_dates
+        })
+
+    # Calculate total cost
+    all_time_slots = [
+        "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM",
+        "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM",
+        "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM",
+        "10:00 PM"
+    ]
+    total_cost = float(ground['costperhour']) * len(all_time_slots) * len(date_range)
+
+    # Create the booking
+    date_range_booking = {
+        "ground_id": ObjectId(ground_id),
+        "user_id": user["_id"],
+        "groundname": ground['groundname'],
+        "sportname": ground['groundtype'],
+        "uploadedBy": ground['uploadedowner'],
+        "bookedBy": session['username'],
+        "start_date": start_date,
+        "end_date": end_date,
+        "booking_dates": date_range,
+        "cost": total_cost,
+        "status": "pending",
+        "booking_type": "date_range",
+        "time_slots": all_time_slots
+    }
+
+    bookings.insert_one(date_range_booking)
+
+    return jsonify({
+        "success": True,
+        "message": "Date range booking initiated!",
+        "total_cost": total_cost
+    })
 
 
 

@@ -226,7 +226,41 @@
       /* Update the legend to include pending status */
       .legend-color.pending {
           background-color: #ffac07;
-      }
+      }.date-range-picker {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 8px;
+}
+
+.date-inputs {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.date-inputs input[type="date"] {
+    background: var(--secondary);
+    border: none;
+    padding: 0.8rem;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.primary-button {
+    background: var(--primary);
+    border: none;
+    padding: 1rem 2rem;
+    color: var(--text);
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.primary-button:hover {
+    opacity: 0.9;
+}
 
 
 
@@ -334,6 +368,22 @@
                   Book Full Day
               </button>
           </div>
+          <div class="date-range-picker">
+            <h3>Book Multiple Days</h3>
+            <div class="date-inputs">
+                <div>
+                    <label for="start-date">Start Date:</label>
+                    <input type="date" id="start-date" min="2024-11-15" />
+                </div>
+                <div>
+                    <label for="end-date">End Date:</label>
+                    <input type="date" id="end-date" min="2024-11-15" />
+                </div>
+            </div>
+            <button id="book-date-range-btn" class="primary-button">
+                Book Date Range
+            </button>
+        </div>
           </div>
         </div>
       </main>
@@ -460,8 +510,12 @@
         // Set up initial date and fetch slots
         const today = new Date().toISOString().split("T")[0];
         const bookingDateElement = document.getElementById("booking-date");
+        const startDateElement=document.getElementById("start-date");
+
         bookingDateElement.min = today;
         bookingDateElement.value = today;
+        startDateElement.min=today;
+        startDateElement.value=today;
 
         bookingDateElement.addEventListener("change", (event) => {
             const selectedDate = event.target.value;
@@ -509,6 +563,60 @@
             }
       });
         // Initial fetch of slots for today
+        document.getElementById("book-date-range-btn").addEventListener("click", async () => {
+          const startDate = document.getElementById("start-date").value;
+          const endDate = document.getElementById("end-date").value;
+          const groundId = document.getElementById("ground-id").value;
+          
+          if (!startDate || !endDate) {
+              alert("Please select both start and end dates");
+              return;
+          }
+          
+          if (new Date(startDate) > new Date(endDate)) {
+              alert("End date must be after start date");
+              return;
+          }
+          
+          try {
+              // First check availability for the date range
+              const availabilityResponse = await fetch(
+                  `/ground/${groundId}/check-date-range-availability?start_date=${startDate}&end_date=${endDate}`
+              );
+              const availabilityData = await availabilityResponse.json();
+              
+              if (!availabilityData.success) {
+                  alert(`Cannot book date range. ${availabilityData.message}\nUnavailable dates: ${availabilityData.unavailable_dates.join(", ")}`);
+                  return;
+              }
+              
+              // If available, proceed with booking
+              const bookingResponse = await fetch("/book-date-range", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                      ground_id: groundId,
+                      start_date: startDate,
+                      end_date: endDate
+                  })
+              });
+              
+              const result = await bookingResponse.json();
+              
+              if (result.success) {
+                  alert(`Date range booking successful!\nTotal cost: ₹${result.total_cost}`);
+                  // Refresh the slots display
+                  fetchAndUpdateSlots(startDate);
+              } else {
+                  alert(result.message || "Failed to book date range.");
+              }
+              
+          } catch (error) {
+              console.error("Error booking date range:", error);
+              alert("An error occurred while booking the date range.");
+          }
+      });
+
       fetchAndUpdateSlots(today);
     </script>
   </body>
